@@ -62,7 +62,7 @@ const PlaylistPage = () => {
           <div className="relative z-10">
             <div className="flex p-6 gap-6 pb-8">
               <img
-                src={currentPlaylist.imageUrl || "/placeholder-image.png"}
+                src={currentPlaylist.imageUrl || "/cover-images/default.jpg"}
                 alt={currentPlaylist.title || "Playlist"}
                 className="w-[240px] h-[240px] shadow-xl rounded"
               />
