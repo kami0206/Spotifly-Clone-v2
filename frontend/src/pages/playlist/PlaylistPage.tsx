@@ -139,7 +139,9 @@ const PlaylistPage = () => {
                           </div>
                           <div className="flex items-center gap-3">
                             <img
-                              src={song.imageUrl || "/placeholder-image.png"}
+                              src={
+                                song.imageUrl || "../cover-images/default.jp"
+                              }
                               alt={song.title}
                               className="size-10"
                             />
