@@ -110,7 +110,7 @@ export const createOrUpdatePlaylist = async (req, res) => {
     }
 
     // Define default image URL
-    const defaultImageUrl = "/public/cover-images/default.jpg"; // Adjust this to your default image path or URL
+    const defaultImageUrl = "./cover-images/default.jpg"; // Adjust this to your default image path or URL
 
     if (!playlist) {
       // Create new playlist
