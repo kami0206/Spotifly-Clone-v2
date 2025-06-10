@@ -40,24 +40,49 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const playlistToEdit = playlists.find((p) => p._id === itemId);
 
   const handleRemoveFromPlaylist = async () => {
-    try {
-      await removeSongsFromPlaylist(playlistId, [itemId]);
-      toast.success("Successfully removed song from playlist");
-    } catch (error: any) {
-      toast.error(error.message || "Error removing song from playlist");
+    if (itemType === "song" && isInPlaylist) {
+      try {
+        const pid = playlistId || useMusicStore.getState().currentPlaylist?._id;
+        if (!pid) throw new Error("Playlist not found");
+        await removeSongsFromPlaylist(pid, [itemId]);
+        toast.success("Successfully removed song from playlist");
+      } catch {
+        toast.error("Error removing song from playlist");
+      }
     }
+    setOpen(false);
   };
 
-  const handleAddToPlaylist = async (targetPlaylistId: string) => {
-    try {
-      await createOrUpdatePlaylist(targetPlaylistId, itemId);
-      toast.success("Successfully added to playlist");
-    } catch (error: any) {
-      if (error.message?.includes("already exists")) {
-        toast.error("Song already exists in this playlist");
-      } else {
-        toast.error(error.message || "Error adding song to playlist");
+  const handleAddToPlaylist = async (playlistId?: string) => {
+    if (!playlistId) {
+      setOpen(false);
+      setNewPlaylistModalOpen(true);
+    } else {
+      const playlist = playlists.find((p) => p._id === playlistId);
+      if (playlist) {
+        const existingSongIds = [...new Set(playlist.songs.map((s) => s._id))];
+        if (existingSongIds.includes(itemId)) {
+          toast.error("Song already exists in this playlist");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("title", playlist.title);
+        formData.append("description", playlist.description || "");
+        formData.append(
+          "songIds",
+          JSON.stringify([...existingSongIds, itemId])
+        );
+        formData.append("playlistId", playlist._id);
+
+        try {
+          await createOrUpdatePlaylist(formData, playlist._id);
+          toast.success("Successfully added to playlist");
+        } catch (error) {
+          console.error("Error in handleAddToPlaylist:", error);
+          toast.error("Error adding song to playlist");
+        }
       }
+      setOpen(false);
     }
   };
 

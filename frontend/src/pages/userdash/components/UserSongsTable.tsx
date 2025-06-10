@@ -27,10 +27,12 @@ export const UserSongsTable: React.FC<Props> = ({ isLoading = false }) => {
     );
   }
 
-  if (songs.length === 0) {
+  if (!songs || songs.length === 0) {
     return (
-      <div className="text-center py-8 text-zinc-400">
-        You haven't uploaded any songs yet.
+      <div className="flex items-center justify-center py-8">
+        <div className="text-zinc-400 text-lg">
+          You haven't uploaded any songs yet.
+        </div>
       </div>
     );
   }
@@ -63,7 +65,7 @@ export const UserSongsTable: React.FC<Props> = ({ isLoading = false }) => {
             <TableCell>
               <span className="inline-flex items-center gap-1 text-zinc-400">
                 <Calendar className="h-4 w-4" />
-                {new Date(song.createdAt).toLocaleDateString("vi-VN")}
+                {new Date(song.createdAt).toLocaleDateString("en-US")}
               </span>
             </TableCell>
             <TableCell className="text-right">
