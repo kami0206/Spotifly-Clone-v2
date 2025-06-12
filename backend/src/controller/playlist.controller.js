@@ -42,6 +42,7 @@ export const getAllPlaylists = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     const playlists = await Playlist.find({ creator: user._id })
+      .sort({ createdAt: -1 })
       .populate({
         path: "songs",
         select: "title artist imageUrl duration albumId audioUrl createdAt",

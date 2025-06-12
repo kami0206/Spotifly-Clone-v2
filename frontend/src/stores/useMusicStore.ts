@@ -391,11 +391,16 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
 
       if (response?.data) {
         const newPlaylist = response.data as Playlist;
-        set((state) => ({
-          playlists: state.playlists.map((p) =>
-            p._id === newPlaylist._id ? newPlaylist : p
-          ),
-        }));
+        set((state) => {
+          const exists = state.playlists.some((p) => p._id === newPlaylist._id);
+          return {
+            playlists: exists
+              ? state.playlists.map((p) =>
+                  p._id === newPlaylist._id ? newPlaylist : p
+                )
+              : [newPlaylist, ...state.playlists],
+          };
+        });
         // toast.success("Created/updated playlist successfully");
         return newPlaylist;
       } else {
