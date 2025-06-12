@@ -46,7 +46,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initAuth();
 
-    return () => disconnectSocket();
+    const intervalId = setInterval(async () => {
+      const newToken = await getToken();
+      console.log("🌱 Token refreshed:", newToken);
+      updateApiToken(newToken);
+    }, 1 * 60 * 1000); // every 4 minutes
+
+    return () => {
+      disconnectSocket();
+      clearInterval(intervalId); // ✅ clear to avoid memory leaks
+    };
   }, [getToken, userId, checkUserRole, initSocket, disconnectSocket]);
 
   if (loading)
