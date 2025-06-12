@@ -4,7 +4,5 @@ export const axiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "development"
       ? "http://localhost:5000/api"
-      : "/api",
+      : "https://spotifly-clone-v2.onrender.com/api",
 });
-
-

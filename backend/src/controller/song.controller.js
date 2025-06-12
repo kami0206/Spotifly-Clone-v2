@@ -18,7 +18,6 @@ export const getAllSongs = async (req, res, next) => {
 
 export const getFeaturedSongs = async (req, res, next) => {
   try {
-    // fetch 6 random songs using mongodb's aggregation pipeline
     const songs = await Song.aggregate([
       { $match: { status: "approved" } },
       {

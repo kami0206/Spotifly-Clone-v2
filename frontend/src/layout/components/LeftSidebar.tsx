@@ -142,7 +142,7 @@ const LeftSidebar = () => {
                 </button>
               </div>
 
-              <ScrollArea className="h-[calc(100vh-300px)]">
+              <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-hide pb-24">
                 <div className="space-y-2">
                   {isLoading ? (
                     <PlaylistSkeleton />
@@ -198,7 +198,7 @@ const LeftSidebar = () => {
           </TabsContent>
 
           <TabsContent value="albums">
-            <ScrollArea className="h-[calc(100vh-300px)]">
+            <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-hide pb-24">
               <div className="space-y-2">
                 {isLoading ? (
                   <PlaylistSkeleton />

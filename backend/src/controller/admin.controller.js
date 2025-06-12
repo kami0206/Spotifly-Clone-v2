@@ -221,3 +221,137 @@ export const updateUserRole = async (req, res, next) => {
     next(error);
   }
 };
+// export const editSong = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { title, artist, duration, albumId } = req.body;
+//     const imageFile = req.files?.imageFile;
+//     const audioFile = req.files?.audioFile;
+
+//     // Find the song and check if it's approved
+//     const song = await Song.findById(id);
+//     if (!song) {
+//       return res.status(404).json({ message: "Song not found" });
+//     }
+
+//     if (song.status !== "approved") {
+//       return res.status(403).json({ message: "Can only edit approved songs" });
+//     }
+
+//     // Check if user is the uploader or an admin/moderator
+//     const user = await User.findOne({ clerkId: req.auth.userId });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const isAdminOrModerator = ["admin", "moderator"].includes(user.role);
+//     if (
+//       !isAdminOrModerator &&
+//       song.uploadedBy.toString() !== user._id.toString()
+//     ) {
+//       return res
+//         .status(403)
+//         .json({ message: "Not authorized to edit this song" });
+//     }
+
+//     // Update fields
+//     const updateData = {
+//       title: title || song.title,
+//       artist: artist || song.artist,
+//       duration: duration || song.duration,
+//     };
+
+//     // Handle image update if provided
+//     if (imageFile) {
+//       const imageUrl = await uploadToCloudinary(imageFile);
+//       updateData.imageUrl = imageUrl;
+//     }
+
+//     // Handle audio update if provided
+//     if (audioFile) {
+//       const audioUrl = await uploadToCloudinary(audioFile);
+//       updateData.audioUrl = audioUrl;
+//     }
+
+//     // Handle album update if provided
+//     if (albumId) {
+//       const album = await Album.findById(albumId);
+//       if (!album) {
+//         return res.status(404).json({ message: "Album not found" });
+//       }
+//       updateData.albumId = albumId;
+//     }
+
+//     // Update the song
+//     const updatedSong = await Song.findByIdAndUpdate(id, updateData, {
+//       new: true,
+//     });
+
+//     res.status(200).json({
+//       message: "Song updated successfully",
+//       song: updatedSong,
+//     });
+//   } catch (error) {
+//     console.error("Error in editSong:", error);
+//     next(error);
+//   }
+// };
+// export const editAlbum = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { title, artist, releaseYear } = req.body;
+//     const imageFile = req.files?.imageFile;
+
+//     // Find the album and check if it's approved
+//     const album = await Album.findById(id);
+//     if (!album) {
+//       return res.status(404).json({ message: "Album not found" });
+//     }
+
+//     if (album.status !== "approved") {
+//       return res.status(403).json({ message: "Can only edit approved albums" });
+//     }
+
+//     // Check if user is the uploader or an admin/moderator
+//     const user = await User.findOne({ clerkId: req.auth.userId });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const isAdminOrModerator = ["admin", "moderator"].includes(user.role);
+//     if (
+//       !isAdminOrModerator &&
+//       album.uploadedBy.toString() !== user._id.toString()
+//     ) {
+//       return res
+//         .status(403)
+//         .json({ message: "Not authorized to edit this album" });
+//     }
+
+//     // Update fields
+//     const updateData = {
+//       title: title || album.title,
+//       artist: artist || album.artist,
+//       releaseYear: releaseYear || album.releaseYear,
+//     };
+
+//     // Handle image update if provided
+//     if (imageFile) {
+//       const imageUrl = await uploadToCloudinary(imageFile);
+//       updateData.imageUrl = imageUrl;
+//     }
+
+//     // Update the album
+//     const updatedAlbum = await Album.findByIdAndUpdate(id, updateData, {
+//       new: true,
+//     }).populate("songs");
+
+//     res.status(200).json({
+//       message: "Album updated successfully",
+//       album: updatedAlbum,
+//     });
+//   } catch (error) {
+//     console.error("Error in editAlbum:", error);
+//     next(error);
+//   }
+// };

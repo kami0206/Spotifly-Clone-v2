@@ -392,11 +392,11 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
       if (response?.data) {
         const newPlaylist = response.data as Playlist;
         set((state) => ({
-          playlists: state.playlists
-            .filter((p) => p._id !== newPlaylist._id)
-            .concat(newPlaylist),
+          playlists: state.playlists.map((p) =>
+            p._id === newPlaylist._id ? newPlaylist : p
+          ),
         }));
-        toast.success("Created/updated playlist successfully");
+        // toast.success("Created/updated playlist successfully");
         return newPlaylist;
       } else {
         throw new Error("No data received from API");

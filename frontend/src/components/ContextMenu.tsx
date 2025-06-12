@@ -4,6 +4,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "react-hot-toast";
 import { useMusicStore } from "@/stores/useMusicStore";
@@ -29,6 +32,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const [open, setOpen] = useState(false);
   const [newPlaylistModalOpen, setNewPlaylistModalOpen] = useState(false);
   const [editPlaylistModalOpen, setEditPlaylistModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     playlists,
@@ -86,47 +90,105 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     }
   };
 
-  const handleCreatePlaylist = async () => {
+  const handleCreatePlaylist = async (
+    title: string,
+    description: string,
+    imageFile?: File
+  ) => {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    if (imageFile) {
+      formData.append("imageFile", imageFile);
+    }
+    formData.append("songIds", JSON.stringify([itemId]));
+
     try {
-      const formData = new FormData();
-      formData.append("title", "New Playlist");
-      formData.append("songIds", JSON.stringify([itemId]));
       await createOrUpdatePlaylist(formData);
       toast.success("New playlist created successfully");
-    } catch (error: any) {
-      toast.error(error.message || "Error creating playlist");
+    } catch (error) {
+      console.error("Error in handleCreatePlaylist:", error);
+      toast.error("Error creating playlist");
+      throw error;
+    } finally {
+      setNewPlaylistModalOpen(false);
+      setOpen(false);
     }
   };
 
-  const handleUpdatePlaylist = async () => {
+  const handleUpdatePlaylist = async (
+    title: string,
+    description: string,
+    imageFile?: File
+  ) => {
+    if (!playlistToEdit) {
+      toast.error("Playlist does not exist");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    if (imageFile) {
+      formData.append("imageFile", imageFile);
+    }
+    formData.append(
+      "songIds",
+      JSON.stringify(playlistToEdit.songs.map((s) => s._id))
+    );
+    formData.append("playlistId", playlistToEdit._id);
+
     try {
-      const formData = new FormData();
-      formData.append("title", "New Title");
-      await createOrUpdatePlaylist(formData, playlistId);
+      await createOrUpdatePlaylist(formData, playlistToEdit._id);
       toast.success("Playlist updated successfully");
+    } catch (error) {
+      console.error("Error in handleUpdatePlaylist:", error);
+      toast.error("Error updating playlist");
+      throw error;
+    } finally {
       setEditPlaylistModalOpen(false);
       setOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || "Error updating playlist");
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
-    } catch (error: any) {
-      toast.error(error.message || "Error sharing");
+  const handleShare = () => {
+    let shareUrl = "";
+    switch (itemType) {
+      case "song":
+        shareUrl = `/songs/${itemId}`;
+        break;
+      case "playlist":
+        shareUrl = `/playlists/${itemId}`;
+        break;
+      case "album":
+        shareUrl = `/albums/${itemId}`;
+        break;
+      default:
+        shareUrl = "/";
     }
+    const fullUrl = window.location.origin + shareUrl;
+    navigator.clipboard
+      .writeText(fullUrl)
+      .then(() => {
+        toast.success("Link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Error copying to clipboard:", err);
+        toast.error("Error sharing");
+      });
+    setOpen(false);
   };
 
   const handleDeletePlaylist = async () => {
-    try {
-      await deletePlaylist(itemId);
-      toast.success("Playlist deleted successfully");
-    } catch (error: any) {
-      toast.error(error.message || "Error deleting playlist");
+    if (itemType === "playlist") {
+      try {
+        await deletePlaylist(itemId);
+        toast.success("Playlist deleted successfully");
+      } catch (error) {
+        console.error("Error in handleDeletePlaylist:", error);
+        toast.error("Error deleting playlist");
+      }
     }
+    setOpen(false);
   };
 
   const handleTriggerClick = (e: React.MouseEvent) => {
@@ -134,6 +196,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     e.preventDefault();
     setOpen(false);
   };
+
+  const filteredPlaylists = playlists.filter((playlist) =>
+    playlist.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -191,21 +257,42 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
                   Remove from playlist
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                onClick={() => handleAddToPlaylist(playlistId || "")}
-                className="hover:bg-gray-700"
-              >
-                Add to new playlist
-              </DropdownMenuItem>
-              {playlists.map((playlist) => (
-                <DropdownMenuItem
-                  key={playlist._id}
-                  onClick={() => handleAddToPlaylist(playlist._id)}
-                  className="hover:bg-gray-700"
-                >
-                  Add to {playlist.title}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="hover:bg-gray-700">
+                  Add to playlist
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-64 p-2 bg-gray-800 border border-gray-600 shadow-lg rounded-md text-white">
+                  <input
+                    type="text"
+                    placeholder="Search playlists"
+                    className="w-full mb-2 px-2 py-1 rounded bg-gray-700 text-white focus:outline-none"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <DropdownMenuItem
+                    onClick={() => handleAddToPlaylist()}
+                    className="hover:bg-gray-700 mb-1"
+                  >
+                    + Add to new playlist
+                  </DropdownMenuItem>
+                  <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                    {filteredPlaylists.length === 0 && (
+                      <div className="px-2 py-2 text-sm text-gray-400">
+                        No playlists found
+                      </div>
+                    )}
+                    {filteredPlaylists.slice(0, 20).map((playlist) => (
+                      <DropdownMenuItem
+                        key={playlist._id}
+                        onClick={() => handleAddToPlaylist(playlist._id)}
+                        className="hover:bg-gray-700"
+                      >
+                        {playlist.title}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
             </>
           )}
         </DropdownMenuContent>

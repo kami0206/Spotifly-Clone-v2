@@ -5,6 +5,8 @@ import {
   createSong,
   deleteAlbum,
   deleteSong,
+  // editAlbum,
+  // editSong,
   reviewAlbum,
   reviewSong,
   updateUserRole,
@@ -22,9 +24,12 @@ router.get(
 
 router.post("/songs", protectRoute, createSong);
 router.delete("/songs/:id", protectRoute, deleteSong);
+// router.patch("/songs/:id", protectRoute, editSong);
 
 router.post("/albums", protectRoute, createAlbum);
 router.delete("/albums/:id", protectRoute, deleteAlbum);
+// router.patch("/albums/:id", protectRoute, editAlbum);
+
 router.patch(
   "/songs/:id/status",
   protectRoute,
